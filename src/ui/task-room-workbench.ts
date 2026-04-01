@@ -438,6 +438,11 @@ export function renderTaskRoomClientScript(language: UiLanguage): string {
   };
 
   const mutateRoom = async (url, body) => {
+    const shouldRetryLocalToken = (response, data) => {
+      if (response.status === 401) return true;
+      if (response.status !== 403) return false;
+      return /invalid local token/i.test(extractErrorMessage(data));
+    };
     const requestOnce = async (token) => {
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers[tokenHeader] = token;
@@ -457,7 +462,7 @@ export function renderTaskRoomClientScript(language: UiLanguage): string {
     let token = ensureToken(labels.tokenPrompt);
     if (!token) throw new Error(labels.needToken);
     let { response, data } = await requestOnce(token);
-    if (response.status === 401) {
+    if (shouldRetryLocalToken(response, data)) {
       clearToken();
       token = requestToken(labels.tokenRetryPrompt || labels.tokenPrompt || labels.needToken);
       if (!token) throw new Error(labels.needToken);

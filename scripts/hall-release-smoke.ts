@@ -23,6 +23,17 @@ type SeededTask = {
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+async function ensureBrowserAutomation(): Promise<void> {
+  const helperModule = await import("./ensure-playwright.js");
+  const ensurePlaywrightChromium =
+    helperModule.ensurePlaywrightChromium ??
+    (helperModule.default as { ensurePlaywrightChromium?: () => Promise<unknown> } | undefined)?.ensurePlaywrightChromium;
+  if (typeof ensurePlaywrightChromium !== "function") {
+    throw new Error("Failed to load Playwright bootstrap helper.");
+  }
+  await ensurePlaywrightChromium();
+}
+
 async function waitForServer(baseUrl: string): Promise<void> {
   const deadline = Date.now() + SERVER_TIMEOUT_MS;
   let lastError: unknown;
@@ -513,6 +524,7 @@ function startServer(): ChildProcessWithoutNullStreams {
 }
 
 async function runBrowserSmoke(baseUrl: string, firstTask: SeededTask, secondTask: SeededTask, thirdTask: SeededTask, fourthTask: SeededTask, fifthTask: SeededTask, sixthTask: SeededTask, seventhTask: SeededTask, eighthTask: SeededTask): Promise<void> {
+  await ensureBrowserAutomation();
   const { chromium } = await import("playwright");
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();

@@ -20,11 +20,14 @@ test("task room workbench renders the three-pane collaboration UI shell", () => 
   assert(script.includes("new EventSource('/api/rooms/"));
   assert(script.includes("draft_start"));
   assert(script.includes("draft_delta"));
+  assert(script.includes("const shouldRetryLocalToken = (response, data) => {"));
+  assert(script.includes("response.status !== 403"));
+  assert(script.includes("/invalid local token/i.test(extractErrorMessage(data))"));
 });
 
 test("collaboration page source keeps the legacy collaboration board and linked task-room threads", async () => {
   const source = await readFile("src/ui/server.ts", "utf8");
-  assert(source.includes("const collaborationSection = `"));
+  assert(source.includes('const collaborationSection = activeSection === "collaboration" ? `'));
   assert(source.includes("Collaboration threads"));
   assert(source.includes("${collaborationThreadHtml}"));
   assert(source.includes("taskRoomWorkbench"));

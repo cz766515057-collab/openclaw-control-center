@@ -310,6 +310,20 @@ test("usage-cost snapshot reports session-type share and cron-job share from ded
           agentId: "main",
           totalTokens: 25,
         },
+        {
+          sessionKey: "agent:otter:feishu:thread:abc",
+          sessionId: "sid-5",
+          agentId: "otter",
+          totalTokens: 40,
+          channel: "feishu",
+        },
+        {
+          sessionKey: "agent:monkey:wechat:thread:xyz",
+          sessionId: "sid-6",
+          agentId: "monkey",
+          totalTokens: 60,
+          channel: "wechat",
+        },
       ],
       events: [],
     },
@@ -321,6 +335,8 @@ test("usage-cost snapshot reports session-type share and cron-job share from ded
   assert.equal(byType.find((item) => item.label === "Cron")?.tokens, 1000);
   assert.equal(byType.find((item) => item.label === "Discord")?.tokens, 100);
   assert.equal(byType.find((item) => item.label === "Telegram")?.tokens, 50);
+  assert.equal(byType.find((item) => item.label === "飞书")?.tokens, 40);
+  assert.equal(byType.find((item) => item.label === "微信")?.tokens, 60);
   assert.equal(byType.find((item) => item.label === "Main/内部会话")?.tokens, 25);
 
   const cronTop = usage.breakdown.byCronJob[0];

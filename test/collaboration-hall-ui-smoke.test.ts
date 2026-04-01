@@ -55,7 +55,7 @@ test("collaboration hall renders a three-pane hall-first shell", () => {
   assert(script.includes("syncSelectedTaskRefs"));
   assert(script.includes("taskCardId: selectedTaskCardId"));
   assert(script.includes("params.set('taskCardId', selectedTaskCardId)"));
-  assert(!script.includes("document.body?.dataset?.tokenRequired"));
+  assert(script.includes("document.body?.dataset?.tokenRequired"));
   assert(script.includes("window.__openclawHallHandleComposerKeydown"));
   assert(script.includes("window.__openclawHallHandleComposerKeyup"));
   assert(script.includes("window.__openclawHallInsertMention"));
@@ -82,6 +82,9 @@ test("collaboration hall renders a three-pane hall-first shell", () => {
   assert(script.includes("draft.persistedMessageId = event.messageId || '';"));
   assert(script.includes("contextToggles.forEach"));
   assert(script.includes("event.key === 'Escape'"));
+  assert(script.includes("const shouldRetryLocalToken = (response, payload) => {"));
+  assert(script.includes("response.status !== 403"));
+  assert(script.includes("/invalid local token/i.test(extractErrorMessage(payload))"));
 });
 
 test("hall chat page source wires the hall workbench into its own section", async () => {
@@ -90,7 +93,7 @@ test("hall chat page source wires the hall workbench into its own section", asyn
   assert(source.includes("collaborationHallWorkbench"));
   assert(source.includes("renderCollaborationHall({"));
   assert(source.includes("renderCollaborationHallClientScript(options.language)"));
-  assert(source.includes("const hallChatSection = `"));
+  assert(source.includes('const hallChatSection = needsHallChat ? `'));
   assert(source.includes("${collaborationHallWorkbench}"));
   assert(source.includes('if (options.section === "hall-chat") sectionBody = hallChatSection;'));
 });

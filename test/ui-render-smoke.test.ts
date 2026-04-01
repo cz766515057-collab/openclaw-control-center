@@ -410,6 +410,7 @@ test("dashboard desktop layout keeps sidebars fixed while main content scrolls l
   assert(source.includes("overflow-y: auto;"));
   assert(source.includes("scrollbar-gutter: stable;"));
   assert(source.includes(".sidebar::-webkit-scrollbar,"));
+  assert(source.includes("@media (max-width: 980px) {"));
   assert(source.includes("body:not(.section-hall-chat) .app-shell {"));
   assert(source.includes("grid-template-rows: auto minmax(0, 1fr);"));
   assert(source.includes("body:not(.section-hall-chat) .panel {"));
@@ -470,7 +471,7 @@ test("usage dashboard includes token type share and cron token share sections", 
   assert(source.includes("usage_view"));
   assert(source.includes("今天"));
   assert(source.includes("累计"));
-  assert(source.includes("定时任务、Discord、Telegram、内部会话"));
+  assert(source.includes("定时任务、Discord、Telegram、飞书、微信、内部会话"));
   assert(source.includes("renderTokenShareRows("));
   assert(source.includes("usageCost.breakdownToday"));
   assert(source.includes("selectedUsageBreakdown.bySessionType"));
@@ -918,4 +919,7 @@ test("ui sources never inject LOCAL_API_TOKEN into rendered HTML", async () => {
   assert(!serverSource.includes("dataset?.localTokenValue"));
   assert(!hallSource.includes("dataset?.localTokenValue"));
   assert(!roomSource.includes("dataset?.localTokenValue"));
+  assert(serverSource.includes("return /invalid local token/i.test(message);"));
+  assert(hallSource.includes("/invalid local token/i.test(extractErrorMessage(payload))"));
+  assert(roomSource.includes("/invalid local token/i.test(extractErrorMessage(data))"));
 });

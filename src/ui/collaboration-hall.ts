@@ -1850,6 +1850,11 @@ export function renderCollaborationHallClientScript(language: UiLanguage): strin
     }
     return payload;
   };
+  const shouldRetryLocalToken = (response, payload) => {
+    if (response.status === 401) return true;
+    if (response.status !== 403) return false;
+    return /invalid local token/i.test(extractErrorMessage(payload));
+  };
   const callMutationJson = async (url, init) => {
     const requestOnce = async (token) => {
       const headers = {
@@ -1874,7 +1879,7 @@ export function renderCollaborationHallClientScript(language: UiLanguage): strin
     let token = ensureToken(textTokenPrompt);
     if (!token) throw new Error(textNeedToken);
     let { response, payload } = await requestOnce(token);
-    if (response.status === 401) {
+    if (shouldRetryLocalToken(response, payload)) {
       clearToken();
       token = requestToken(textTokenRetryPrompt);
       if (!token) throw new Error(textNeedToken);

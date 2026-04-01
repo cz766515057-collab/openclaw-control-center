@@ -7476,7 +7476,7 @@ async function renderHtml(
     </section>
     <section class="card">
       <h2>${escapeHtml(t("AI usage mix (all sessions)", "AI 用量构成（全部会话）"))}</h2>
-      <div class="meta">${escapeHtml(t("Timed jobs, Discord, Telegram, internal sessions", "定时任务、Discord、Telegram、内部会话"))}</div>
+      <div class="meta">${escapeHtml(t("Timed jobs, Discord, Telegram, Feishu, WeChat, internal sessions", "定时任务、Discord、Telegram、飞书、微信、内部会话"))}</div>
       ${usageSessionTypeShareHtml}
     </section>
     <section class="card">
@@ -11173,7 +11173,7 @@ async function renderHtml(
       .staff-brief-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .collaboration-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
-    @media (max-width: 1320px) {
+    @media (max-width: 980px) {
       body:not(.section-hall-chat) .app-shell {
         grid-template-columns: 1fr 284px;
         grid-template-rows: auto minmax(0, 1fr);
@@ -15998,10 +15998,23 @@ function renderAvatarEditorScript(language: UiLanguage = "zh", importMutationEna
         [tokenHeader]: token,
       },
     });
+    const shouldRetryLocalToken = async (response) => {
+      if (response.status === 401) return true;
+      if (response.status !== 403) return false;
+      try {
+        const payload = await response.clone().json();
+        const message = payload && payload.error && typeof payload.error === 'object' && payload.error.message
+          ? String(payload.error.message)
+          : String(payload?.error || payload?.message || '');
+        return /invalid local token/i.test(message);
+      } catch {
+        return false;
+      }
+    };
     let token = ensureToken(L.tokenPrompt);
     if (!token) return null;
     let response = await send(token);
-    if (response.status !== 401) return response;
+    if (!(await shouldRetryLocalToken(response))) return response;
     clearToken();
     token = requestToken(L.tokenRetryPrompt || L.tokenPrompt);
     if (!token) return response;
